@@ -3,19 +3,66 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --kubo-green: #0DFF96;
+  --kubo-purple: #6041A5;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  body {
+    @apply bg-gray-50;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+/* Animações suaves */
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Estilização personalizada para inputs */
+input[type="text"],
+input[type="tel"] {
+  @apply transition-all duration-200;
+}
+
+input[type="text"]:focus,
+input[type="tel"]:focus {
+  @apply ring-2 ring-kubo-purple/20 border-kubo-purple;
+}
+
+/* Estilização para radio buttons */
+[data-state="checked"] {
+  @apply ring-2 ring-kubo-purple;
+}
+
+/* Estilização para botões do quiz */
+.quiz-option {
+  @apply transition-all duration-200 hover:border-kubo-purple/50;
+}
+
+.quiz-option[data-state="checked"] {
+  @apply border-kubo-purple bg-kubo-purple/5;
 }
