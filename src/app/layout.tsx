@@ -22,7 +22,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="pt-BR" className={poppins.className}>
+    <html lang="pt-BR" className={poppins.className} suppressHydrationWarning>
       <head>
         <Script
           id="facebook-pixel"
