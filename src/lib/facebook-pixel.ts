@@ -1,11 +1,25 @@
-type FacebookPixelFunction = (action: string, event: string, params?: object) => void;
+// Define specific types for Facebook Pixel
+type FacebookPixelEvent = 'track' | 'init';
+type FacebookPixelParams = {
+  content_name?: string;
+  content_category?: string;
+  user_data?: {
+    name: string;
+    phone: string;
+  };
+};
+
+interface FacebookPixelFunction {
+  (event: FacebookPixelEvent, eventName: string): void;
+  (event: FacebookPixelEvent, eventName: string, params: FacebookPixelParams): void;
+}
 
 interface FacebookPixel extends FacebookPixelFunction {
-  callMethod?: (...args: any[]) => void;
-  queue?: any[];
-  loaded?: boolean;
-  version?: string;
-  push?: Function;
+  callMethod?: (...args: unknown[]) => void;
+  queue: unknown[];
+  loaded: boolean;
+  version: string;
+  push: (args: unknown[]) => number;
 }
 
 declare global {
@@ -17,42 +31,51 @@ declare global {
 
 export const FB_PIXEL_ID = '902536777459948'
 
-export const pageview = () => {
+export const pageview = (): void => {
   window.fbq?.('track', 'PageView')
 }
 
 // https://developers.facebook.com/docs/facebook-pixel/advanced/
-export const lead = (name: string, phone: string) => {
+export const lead = (name: string, phone: string): void => {
   window.fbq?.('track', 'Lead', {
     content_name: 'Quiz de Análise de Times Comerciais',
     content_category: 'Quiz',
     user_data: {
-      name: name,
-      phone: phone
+      name,
+      phone
     }
   })
 }
 
 // Inicializa o Facebook Pixel
-export const initFacebookPixel = () => {
+export const initFacebookPixel = (): void => {
   if (typeof window === 'undefined') {
     return
   }
 
-  if (typeof window.fbq === 'function') return
-  
-  const pixelFunction = function(...args: [string, string, object?]) {
-    const fbq = window.fbq as FacebookPixel;
-    return fbq.callMethod ? fbq.callMethod(...args) : fbq.queue?.push(args);
-  } as FacebookPixel;
-  
-  window.fbq = pixelFunction;
-  
-  if (!window.fbq.queue) {
-    window.fbq.queue = []
+  if (typeof window.fbq === 'function') {
+    return
   }
-  
-  window.fbq('init', FB_PIXEL_ID)
-  
-  pageview()
+
+  const pixelFunction = function(...args: [FacebookPixelEvent, string, FacebookPixelParams?]): void {
+    const fbq = window.fbq as FacebookPixel;
+    if (fbq.callMethod) {
+      fbq.callMethod(...args);
+    } else {
+      fbq.queue.push(args);
+    }
+  } as FacebookPixel;
+
+  pixelFunction.queue = [];
+  pixelFunction.loaded = true;
+  pixelFunction.version = '2.0';
+  pixelFunction.push = function(args: unknown[]): number {
+    return this.queue.push(args);
+  };
+
+  window.fbq = pixelFunction;
+  window._fbq = pixelFunction;
+
+  window.fbq('init', FB_PIXEL_ID);
+  pageview();
 }
