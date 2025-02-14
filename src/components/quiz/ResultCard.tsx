@@ -1,7 +1,9 @@
 "use client"
 
+import { useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { getResultInterpretation } from "@/lib/constants"
+import { lead } from "@/lib/facebook-pixel"
 
 interface ResultCardProps {
   score: number
@@ -12,6 +14,11 @@ interface ResultCardProps {
 export function ResultCard({ score, maxScore, name }: ResultCardProps) {
   const percentage = (score / maxScore) * 100
   const result = getResultInterpretation(score)
+
+  // Dispara o evento de lead assim que o componente é montado
+  useEffect(() => {
+    lead(name, window.localStorage.getItem('whatsapp') || '')
+  }, [name])
 
   const handleWhatsAppClick = () => {
     const message = encodeURIComponent(

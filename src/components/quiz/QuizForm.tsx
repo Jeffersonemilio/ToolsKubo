@@ -42,6 +42,8 @@ export function QuizForm({ onSubmit }: QuizFormProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (validateForm()) {
+      // Salva o WhatsApp no localStorage antes de enviar
+      window.localStorage.setItem('whatsapp', formData.whatsapp)
       onSubmit(formData)
     }
   }
